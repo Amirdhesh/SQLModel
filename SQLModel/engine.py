@@ -8,8 +8,5 @@ load_dotenv()
 engine = create_engine(os.getenv('mysqllink'))
 
 
-def create_database_and_table():
+def create_table():
     SQLModel.metadata.create_all(engine)
-
-if __name__ == "__main__":
-    create_database_and_table() #func is called once when ever this engine.py file is excuted
