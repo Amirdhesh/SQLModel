@@ -1,13 +1,22 @@
 from engine import engine, create_table
 from sqlmodel import Session, select
-from Model import students
+from Model import students, Departments
 
 
 def Insert_operation():
-    student1 = students(name="John", mail="John@mail.com")
-    student2 = students(name="Alice", mail="Alice@mail.com")
-    # add more data
     with Session(engine) as session:
+        # Departments table
+        dept1 = Departments(department="CSE")
+        dept2 = Departments(department="ECE")
+        # add more data
+        session.add(dept1)
+        session.add(dept2)
+        session.commit()
+
+        # Students table
+        student1 = students(name="John", mail="John@mail.com", dept_id=dept2.id)
+        student2 = students(name="Alice", mail="Alice@mail.com", dept_id=dept1.id)
+        # add more data
         session.add(student1)
         session.add(student2)
         session.commit()
@@ -67,14 +76,49 @@ def Delete_student():
         # To check :
         statement = select(students).where(students.name == "John")
         result = session.exec(statement)
-        student = result.first
+        student = result.first()
 
         if student is None:
             print("There no row John")
 
 
-Delete_student()
+def read_operation_connectedTable():
+    with Session(engine) as session:
+        statment = select(students, Departments).where(
+            students.dept_id == Departments.id
+        )
+        result = session.exec(statment)
+        for student, Department in result:
+            print("Student :", student, "Department :", Department)
 
-if __name__ == "__main__":
-    create_table()  # func is called once when ever this engine.py file is excuted
+
+def update_operation_connectedTable():
+    with Session(engine) as session:
+        statment = select(students).where(students.name == "John")
+        result = session.exec(statment)
+        student = result.first()
+        statment = select(Departments).where(Departments.department == "CSE")
+        result = session.exec(statment)
+        dept = result.one()
+        student.dept_id = dept.id
+        session.add(student)
+        session.commit()
+
+
+def delete_operation_connectedTable():
+    with Session(engine) as session:
+        statment = select(students).where(students.name == "John")
+        result = session.exec(statment)
+        student = result.first()
+        student.dept_id = None
+        session.add(student)
+        session.commit()
+
+
+read_operation_connectedTable()
+
+if (
+    __name__ == "__main__"
+):  # This piece of code is executed when ever this app.py file is excuted
+    create_table()
     # Insert_operation()
