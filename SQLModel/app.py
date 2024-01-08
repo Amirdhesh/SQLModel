@@ -115,10 +115,43 @@ def delete_operation_connectedTable():
         session.commit()
 
 
-read_operation_connectedTable()
+def Insert_operation_Relationship():
+    with Session(engine) as session:
+        # Departments table
+        dept1 = Departments(department="CSE")
+        dept2 = Departments(department="ECE")
+
+        # Students table
+        student1 = students(name="John", mail="John@mail.com", department_name=dept2)
+        student2 = students(name="Alice", mail="Alice@mail.com", department_name=dept1)
+        # add more data
+
+        session.add(student1)
+        session.add(student2)
+        session.commit()
+
+
+def read_operation_Relationship():
+    with Session(engine) as session:
+        statement = select(Departments).where(Departments.department == "ECE")
+        result = session.exec(statement).one()
+        print(result.students)
+
+
+def Update_operation_Relationship():
+    with Session(engine) as session:
+        statement = select(students).where(students.name == "Alice")
+        result1 = session.exec(statement).first()
+        statement = select(Departments).where(Departments.department == "CSE")
+        result2 = session.exec(statement).first()
+        result1.department_name = result2
+        session.add(result1)
+        session.commit()
+
 
 if (
     __name__ == "__main__"
 ):  # This piece of code is executed when ever this app.py file is excuted
     create_table()
     # Insert_operation()
+    # Insert_operation_Relationship()
